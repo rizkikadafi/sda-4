@@ -1,8 +1,21 @@
 from utils.app import *
 
 
-def bubble_sort(data):
-    list_data = [int(d) for d in data]
+class NumericPrompt(PromptBase):
+    response_type = str
+    validate_error_massage = "[prompt.invalid]Harap masukkan data numerik \[bilangan bulat atau pecahan]! (contoh: 2 atau 3.2)"
+
+    def process_response(self, value: str):
+        list_value = value.split()
+        for d in list_value:
+            if not str(d).replace(".", "").isnumeric():
+                raise InvalidResponse(self.validate_error_massage)
+
+        return value
+
+
+def bubble_sort(data: list):
+    list_data = data.copy()
 
     grid_process = Table.grid(expand=True)
     for i in range(2 if len(data) > 12 else 3):
@@ -58,8 +71,40 @@ def bubble_sort(data):
 
 
 def main():
-    data = Prompt.ask("\n[bold]Masukkan data (dipisahkan dengan spasi)")
-    list_data = data.split()
+    data_type = {
+        1: "Numerik",
+        2: "String",
+    }
+
+    data_type_str = "\n[text_default]"
+    for k, v in data_type.items():
+        data_type_str += f"{k}. {v}\n"
+
+    panel_data_type = Panel(
+        data_type_str,
+        title="[text_title]Tipe Data",
+        title_align="left",
+        style="default",
+    )
+
+    console.print(Padding(panel_data_type, pad=(1, 0, 0, 0)))
+    dt = IntPrompt.ask(
+        "\n[bold]Pilih Tipe Data", choices=[str(i) for i in data_type.keys()]
+    )
+
+    list_data = []
+    match dt:
+        case 1:
+            data = NumericPrompt.ask(
+                "\n[bold]Masukkan data Numerik (dipisahkan dengan spasi)"
+            )
+            list_data = [
+                int(d) if str(d).find(".") == -1 else float(d) for d in data.split()
+            ]
+        case 2:
+            data = Prompt.ask("\n[bold]Masukkan data String (dipisahkan dengan spasi)")
+            list_data = data.split()
+
     grid_result = Table.grid(expand=True)
     grid_result.add_column(ratio=3, vertical="middle")
     grid_result.add_column(ratio=1, vertical="middle")
@@ -67,8 +112,11 @@ def main():
 
     sorted_data = bubble_sort(list_data)
 
+    original_data_str = [str(d) for d in list_data]
     panel_orginal_data = Panel(
-        Text(f"\n{' '.join(list_data)}\n", justify="center", style="text_default"),
+        Text(
+            f"\n{' '.join(original_data_str)}\n", justify="center", style="text_default"
+        ),
         title="[text_title]Original Data",
         title_align="center",
         style="default",

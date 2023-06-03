@@ -18,16 +18,14 @@ def bubble_sort(data: list):
     list_data = data.copy()
 
     grid_process = Table.grid(expand=True)
-    for i in range(2 if len(data) > 12 else 3):
-        grid_process.add_column()
 
     list_row = []
     for i in range(1, len(data)):
         table_process = Table(
             title=f"Tahap {i}",
         )
-        table_process.add_column("Data")
-        table_process.add_column("Swap")
+        table_process.add_column(Align("Data", align="center"), min_width=15)
+        table_process.add_column("Swap", min_width=5, justify="center")
 
         list_data_str = [str(d) for d in list_data]
         list_data_str[0] = f"[bold blue]{list_data_str[0]}[/]"

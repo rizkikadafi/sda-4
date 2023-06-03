@@ -1,7 +1,5 @@
 from utils.app import *
 
-box = "⬜"
-
 
 class NumericPrompt(PromptBase):
     response_type = str
@@ -16,17 +14,64 @@ class NumericPrompt(PromptBase):
         return value
 
 
+# 1st version
+# def insertion_sort(data: list):
+#     list_data = data.copy()
+#     for i in range(1, len(data)):
+#         tmp = list_data[i]
+
+#         j = i
+#         while j > 0 and list_data[j - 1] > tmp:
+#             list_data[j] = list_data[j - 1]
+#             j -= 1
+#         list_data[j] = tmp
+#     return [str(d) for d in list_data]
+
+
+# 2nd version
 def insertion_sort(data: list):
     list_data = data.copy()
-    for i in range(1, len(data)):
-        tmp = list_data[i]
+    list_data_str = [str(d) for d in list_data]
 
+    grid_process = Table.grid(expand=True)
+
+    list_data_str[0] = f"[bold green]{list_data_str[0]}[/]"
+    list_row = []
+    for i in range(1, len(data)):
         j = i
-        while j > 0 and list_data[j - 1] > tmp:
-            list_data[j] = list_data[j - 1]
+        table_process = Table(
+            title=f"Iterasi ke-{i} (i = {list_data[i]})", min_width=30
+        )
+        table_process.add_column(Text("Data", justify="center"))
+        list_data_str[j] = f"[bold blue]{list_data_str[j]}[/]"
+        initial_data = Table.grid(expand=True)
+        initial_data.add_row(
+            f"{' '.join(list_data_str)}", Align("(data awal)", align="right")
+        )
+        table_process.add_row(initial_data)
+
+        while j > 0 and list_data[j - 1] > list_data[j]:
+            list_data[j], list_data[j - 1] = list_data[j - 1], list_data[j]
+            list_data_str[j], list_data_str[j - 1] = (
+                list_data_str[j - 1],
+                list_data_str[j],
+            )
+            table_process.add_row(f"{' '.join(list_data_str)}")
             j -= 1
-        list_data[j] = tmp
-    return [str(d) for d in list_data]
+
+        list_data_str[j] = list_data_str[j].replace("bold blue", "bold green")
+        sorted_data = Table.grid(expand=True)
+        sorted_data.add_row(
+            f"{' '.join(list_data_str)}", Align("(data akhir)", align="right")
+        )
+        table_process.add_row(sorted_data)
+
+        list_row.append(Align(table_process, align="center"))
+        if i % 2 == 0 or i == len(data) - 1:
+            grid_process.add_row(*list_row)
+            list_row = []
+
+    return ([str(d) for d in list_data], grid_process)
 
 
 def main():
@@ -81,7 +126,7 @@ def main():
         style="default",
     )
     panel_sorted_data = Panel(
-        Text(f"\n{' '.join(sorted_data)}\n", justify="center", style="text_default"),
+        Text(f"\n{' '.join(sorted_data[0])}\n", justify="center", style="text_default"),
         title="[text_title]Sorted Data",
         title_align="center",
         style="default",
@@ -96,6 +141,7 @@ def main():
     console.clear()
     console.rule(program2.title, style="default")
     console.print(Padding(grid_result, pad=(1, 0)))
+    console.print(sorted_data[1])
 
     if Confirm.ask("\n[bold]Keluar Program"):
         return program2.stop()

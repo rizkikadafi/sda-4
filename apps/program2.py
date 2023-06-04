@@ -138,12 +138,17 @@ def main():
         panel_sorted_data,
     )
 
-    console.clear()
-    console.rule(program2.title, style="default")
-    console.print(Padding(grid_result, pad=(1, 0)))
-    console.print(sorted_data[1])
+    if Confirm.ask("\n[bold]Apakah anda ingin menampilkan proses sorting"):
+        console.clear()
+        console.rule(program2.title, style="default")
+        console.print(Padding(grid_result, pad=(1, 0)))
+        console.print(Padding(sorted_data[1], pad=(0, 0, 1, 0)))
+    else:
+        console.clear()
+        console.rule(program2.title, style="default")
+        console.print(Padding(grid_result, pad=(1, 0)))
 
-    if Confirm.ask("\n[bold]Keluar Program"):
+    if Confirm.ask("[bold]Keluar Program"):
         return program2.stop()
 
 

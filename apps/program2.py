@@ -155,7 +155,7 @@ def main():
 title = "[text_title]Program 2: Insertion Sort"  # untuk di tampilkan sebagai judul
 name = "Insertion Sort"  # untuk di tampilkan di list menu
 description = """[text_default]
-🔷 Program 2 merupakan program untuk mengurutkan data dengan menggunakan algoritma Buble Sort. 
+🔷 Program 2 merupakan program untuk mengurutkan data dengan menggunakan algoritma Insertion Sort. 
 🔷 Data yang diurutkan bisa berupa angka ataupun alphabet.\n"""  # deskripsi program
 
 program2 = App(name=name, title=title, description=description, program=main)

@@ -72,11 +72,20 @@ def selection_sort(data: list):
                 list_data_str[i],
             )
 
+            if i + 1 == len(data) - 1:
+                list_data_str[len(data) - 1] = list_data_str[len(data) - 1].replace(
+                    "text_default", "bold green"
+                )
+
             table_process.add_row(f"{' '.join(list_data_str)}", "Swap (akhir)")
         else:
             list_data_str[i_min] = list_data_str[i_min].replace(
                 "bold yellow", "bold green"
             )
+            if i + 1 == len(data) - 1:
+                list_data_str[len(data) - 1] = list_data_str[len(data) - 1].replace(
+                    "text_default", "bold green"
+                )
 
             table_process.add_row(f"{' '.join(list_data_str)}", "(akhir)")
 
@@ -85,15 +94,84 @@ def selection_sort(data: list):
             grid_process.add_row(*list_row)
             list_row = []
 
-    console.print(grid_process)
-    return list_data
+    return ([str(d) for d in list_data], grid_process)
 
 
 def main():
-    x = [3, 4, 5, 2, 1]
-    print(x)
-    print(selection_sort(x))
-    if Confirm.ask("\n[bold]Keluar Program"):
+    data_type = {
+        1: "Numerik",
+        2: "String",
+    }
+
+    data_type_str = "\n[text_default]"
+    for k, v in data_type.items():
+        data_type_str += f"{k}. {v}\n"
+
+    panel_data_type = Panel(
+        data_type_str,
+        title="[text_title]Tipe Data",
+        title_align="left",
+        style="default",
+    )
+
+    console.print(Padding(panel_data_type, pad=(1, 0, 0, 0)))
+    dt = IntPrompt.ask(
+        "\n[bold]Pilih Tipe Data", choices=[str(i) for i in data_type.keys()]
+    )
+
+    list_data = []
+    match dt:
+        case 1:
+            data = NumericPrompt.ask(
+                "\n[bold]Masukkan data Numerik (dipisahkan dengan spasi)"
+            )
+            list_data = [
+                int(d) if str(d).find(".") == -1 else float(d) for d in data.split()
+            ]
+        case 2:
+            data = Prompt.ask("\n[bold]Masukkan data String (dipisahkan dengan spasi)")
+            list_data = data.split()
+
+    grid_result = Table.grid(expand=True)
+    grid_result.add_column(ratio=3, vertical="middle")
+    grid_result.add_column(ratio=1, vertical="middle")
+    grid_result.add_column(ratio=3, vertical="middle")
+
+    sorted_data = selection_sort(list_data)
+
+    original_data_str = [str(d) for d in list_data]
+    panel_orginal_data = Panel(
+        Text(
+            f"\n{' '.join(original_data_str)}\n", justify="center", style="text_default"
+        ),
+        title="[text_title]Original Data",
+        title_align="center",
+        style="default",
+    )
+    panel_sorted_data = Panel(
+        Text(f"\n{' '.join(sorted_data[0])}\n", justify="center", style="text_default"),
+        title="[text_title]Sorted Data",
+        title_align="center",
+        style="default",
+    )
+
+    grid_result.add_row(
+        panel_orginal_data,
+        Text(" ---> ", justify="center", style="text_default"),
+        panel_sorted_data,
+    )
+
+    if Confirm.ask("\n[bold]Apakah anda ingin menampilkan proses sorting"):
+        console.clear()
+        console.rule(program3.title, style="default")
+        console.print(Padding(grid_result, pad=(1, 0)))
+        console.print(Padding(sorted_data[1], pad=(0, 0, 1, 0)))
+    else:
+        console.clear()
+        console.rule(program3.title, style="default")
+        console.print(Padding(grid_result, pad=(1, 0)))
+
+    if Confirm.ask("[bold]Keluar Program"):
         return program3.stop()
 
 

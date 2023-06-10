@@ -1,7 +1,26 @@
 from utils.app import *
 
+chars = ["┘", "┌", "─", "└", "┐", "┴"]
+
 
 def main():
+    grid = Table.grid(padding=(0, 0))
+
+    x = [Align(str(i), align="center") for i in range(1, 21)]
+    grid.add_row("", Align("20", align="center"), "")
+    grid.add_row(
+        Align(" ┌─", align="center"),
+        Align("─" * 5 + "┴" + "─" * 5, align="center"),
+        "┐",
+    )
+    grid.add_row(Align("5", align="center"), "", Align("25", align="center"))
+    grid.add_row(
+        Align("", align="center"),
+        Align("─" * 2, align="right"),
+        Align("┘", align="center"),
+    )
+
+    console.print(grid, justify="center")
     if Confirm.ask("\n[bold]Keluar Program"):
         return program4.stop()
 

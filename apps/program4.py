@@ -53,67 +53,95 @@ class BST:
         if current_node.left is None and current_node.right is None:
             row = list_char_value
             width = len(list_char_value)
-            return [row], middle, width, len(list_char_value)
+            width_lr = [0, 0]
+            return [row], middle, width, width_lr, len(list_char_value)
         elif current_node.right is None:
-            rows, middle_down, width, len_char_prev = self._display_aux(
+            rows, middle_down, width, width_lr, len_char_prev = self._display_aux(
                 current_node.left
             )
+            rows = [row + [""] * len(list_char_value) for row in rows]
             first_row = [""] * width + list_char_value
             second_row = (
-                [""]
-                * (width - (middle_down if len_char_prev % 2 == 0 else middle_down + 1))
+                [""] * (width_lr[0] + (middle_down))
                 + [chars["down_left"]]
                 + [chars["strip"]]
                 * (middle_down - 1 if len_char_prev % 2 == 0 else middle_down)
-                + [chars["strip"]] * middle
+                + [chars["strip"]] * (width_lr[1] + middle)
                 + [chars["up_left"]]
+                + [""] * (middle - 1 if len(list_char_value) % 2 == 0 else middle)
             )
+            width_lr[0] += len_char_prev
             return (
                 [first_row, second_row] + rows,
                 middle,
                 width + len(list_char_value),
+                width_lr,
                 len(list_char_value),
             )
         elif current_node.left is None:
-            rows, middle_down, width, len_char_prev = self._display_aux(
+            rows, middle_down, width, width_lr, len_char_prev = self._display_aux(
                 current_node.right
             )
             rows = [[""] * len(list_char_value) + row for row in rows]
-            first_row = list_char_value
+            first_row = list_char_value + [""] * width
             second_row = (
-                [""] * middle
-                + [chars["up_right"]]
-                + [chars["strip"]]
-                * (
-                    (middle - 1 if len(list_char_value) % 2 == 0 else middle)
-                    + width
-                    - (middle_down if len_char_prev % 2 == 0 else middle_down + 1)
+                (
+                    [""] * middle
+                    + [chars["up_right"]]
+                    + [chars["strip"]]
+                    * (
+                        (middle - 1 if len(list_char_value) % 2 == 0 else middle)
+                        + width_lr[0]
+                        + (middle_down)
+                    )
                 )
-            ) + [chars["down_right"]]
-            return [first_row, second_row] + rows, middle, width, len(list_char_value)
+                + [chars["down_right"]]
+                + [""]
+                * (
+                    middle_down - 1 + width_lr[1]
+                    if len_char_prev % 2 == 0
+                    else middle_down + width_lr[1]
+                )
+            )
+            width_lr[1] += len_char_prev
+            return (
+                [first_row, second_row] + rows,
+                middle,
+                width + len(list_char_value),
+                width_lr,
+                len(list_char_value),
+            )
         else:
-            left_rows, middle_down_l, width_l, len_char_prev_l = self._display_aux(
-                current_node.left
-            )
-            right_rows, middle_down_r, width_r, len_char_prev_r = self._display_aux(
-                current_node.right
-            )
+            (
+                left_rows,
+                middle_down_l,
+                width_l,
+                width_lr_l,
+                len_char_prev_l,
+            ) = self._display_aux(current_node.left)
+            (
+                right_rows,
+                middle_down_r,
+                width_r,
+                width_lr_r,
+                len_char_prev_r,
+            ) = self._display_aux(current_node.right)
             first_row = [""] * width_l + list_char_value + [""] * width_r
             second_row = (
-                [""]
-                * (
-                    width_l
-                    - (middle_down_l if len_char_prev_l % 2 == 0 else middle_down_l + 1)
-                )
+                [""] * (width_lr_l[0] + (middle_down_l))
                 + [chars["down_left"]]
                 + [chars["strip"]]
-                * (middle_down_l - 1 if len_char_prev_l % 2 == 0 else middle_down_l)
+                * (
+                    width_lr_l[1]
+                    + (middle_down_l - 1 if len_char_prev_l % 2 == 0 else middle_down_l)
+                    + middle
+                )
                 + [chars["middle"]]
                 + [chars["strip"]]
                 * (
                     (middle - 1 if len(list_char_value) % 2 == 0 else middle)
-                    + width_r
-                    - (middle_down_r if len_char_prev_r % 2 == 0 else middle_down_r + 1)
+                    + width_lr_r[0]
+                    + (middle_down_r)
                 )
                 + [chars["down_right"]]
             )
@@ -121,10 +149,15 @@ class BST:
             rows = [first_row, second_row] + [
                 lr + [""] * len(list_char_value) + rr for lr, rr in zipped_rows
             ]
+            width_lr = [
+                sum(width_lr_l) + len_char_prev_l,
+                sum(width_lr_r) + len_char_prev_r,
+            ]
             return (
                 rows,
                 middle,
                 width_l + len(list_char_value) + width_r,
+                width_lr,
                 len(list_char_value),
             )
 
@@ -203,12 +236,10 @@ class BST:
 
 
 def main():
-    # data = [55556, 44, 3]
-    # data = [333, 444, 334]
-    # data = [1, 20, 300, 4000]
-    # data = [4000, 300, 20, 1]
-    # data = [5, 3, 1, 4, 8, 7, 9]
-    data = [2500, 2000, 3000]
+    # data = [200, 150, 140]
+    # data = [200, 300, 150, 250, 160, 240, 170]
+    data = [200, 150, 140, 130, 280, 270, 260, 275]
+    # data = [200, 300, 450]
     bst = BST()
     for d in data:
         bst.insert(d)

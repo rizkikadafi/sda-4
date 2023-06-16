@@ -50,6 +50,7 @@ class BST:
     def _display_aux(self, current_node: Node):
         list_char_value = list(str(current_node.value))
         middle = len(list_char_value) // 2
+        info_child_prev = ""
         if current_node.left is None and current_node.right is None:
             row = list_char_value
             width = len(list_char_value)
@@ -65,12 +66,18 @@ class BST:
                 [""] * (width_lr[0] + (middle_down))
                 + [chars["down_left"]]
                 + [chars["strip"]]
-                * (middle_down - 1 if len_char_prev % 2 == 0 else middle_down)
-                + [chars["strip"]] * (width_lr[1] + middle)
+                * (middle_down + width_lr[1] + middle - 1 if len_char_prev % 2 == 0 else middle_down + width_lr[1] + middle)
                 + [chars["up_left"]]
                 + [""] * (middle - 1 if len(list_char_value) % 2 == 0 else middle)
             )
-            width_lr[0] += len_char_prev
+            if info_child_prev == "" or info_child_prev == "left":     
+                width_lr[0] += len_char_prev
+            elif info_child_prev == "right":
+                width_lr[0] = sum(width_lr) + len_char_prev
+                width_lr[1] = 0
+            else:
+                width_lr[0] = sum(width_lr) + len_char_prev
+            info_child_prev = "left"
             return (
                 [first_row, second_row] + rows,
                 middle,
@@ -103,7 +110,14 @@ class BST:
                     else middle_down + width_lr[1]
                 )
             )
-            width_lr[1] += len_char_prev
+            if info_child_prev == "" or info_child_prev == "right":
+                width_lr[1] += len_char_prev
+            elif info_child_prev == "left":
+                width_lr[1] = sum(width_lr) + len_char_prev
+                width_lr[0] = 0
+            else:
+                width_lr[1] = sum(width_lr) + len_char_prev 
+            info_child_prev = "right"
             return (
                 [first_row, second_row] + rows,
                 middle,
@@ -144,6 +158,7 @@ class BST:
                     + (middle_down_r)
                 )
                 + [chars["down_right"]]
+                + [""] * (middle_down_r + width_lr_r[1] - 1 if len_char_prev_r % 2 == 0 else middle_down_r + width_lr_r[1])
             )
             zipped_rows = zip(left_rows, right_rows)
             rows = [first_row, second_row] + [
@@ -153,6 +168,7 @@ class BST:
                 sum(width_lr_l) + len_char_prev_l,
                 sum(width_lr_r) + len_char_prev_r,
             ]
+            info_child_prev = "middle"
             return (
                 rows,
                 middle,
@@ -238,8 +254,11 @@ class BST:
 def main():
     # data = [200, 150, 140]
     # data = [200, 300, 150, 250, 160, 240, 170]
-    data = [200, 150, 140, 130, 280, 270, 260, 275]
+    # data = [200, 150, 140, 130, 280, 270, 260, 275]
+    data = [200, 280, 270, 260, 275]
     # data = [200, 300, 450]
+    data = input("masukkan data: ").split()
+    data = [int(d) for d in data]
     bst = BST()
     for d in data:
         bst.insert(d)

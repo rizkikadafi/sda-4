@@ -290,3 +290,9 @@ class BST:
         while current_node.left:
             current_node = current_node.left
         return current_node.value
+
+    def reset(self):
+        self.root = None
+
+    def empty(self):
+        return True if self.root == None else False
